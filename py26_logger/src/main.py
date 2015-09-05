@@ -9,10 +9,12 @@ import optparse
 import logging
 import logging.config
 
-def parse_cli_args():
-    """Parse command line args.  Additional options can be added and will be
-    returned to the 'if __name__ == '__main__'' block."""
+import example_package.example_module
+# We imported example_module before setting logging configuration.
+# This can cause issues, see the module for explanation.
 
+def parse_cli_args():
+    """Parse command line args.  Additional options can be added."""
     parser = optparse.OptionParser()
     parser.add_option('-v', '--verbose', dest="verbose",
                       action='count', default=0,
@@ -60,3 +62,5 @@ log.info('test info message')
 log.warn('test warn message')
 log.error('test error message')
 log.critical('test critical message')
+
+example_package.example_module.do_stuff()

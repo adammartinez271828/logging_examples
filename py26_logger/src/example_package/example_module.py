@@ -8,5 +8,3 @@ def do_stuff():
     # loading the configuration in main.
     log = logging.getLogger(__name__)  # Getting loggers is "cheap".
     log.critical('Logging from another module.')
-
-

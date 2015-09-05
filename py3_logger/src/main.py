@@ -16,7 +16,6 @@ import example_package.example_module
 
 def parse_cli_args():
     """Parse command line args.  Additional options can be added."""
-
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--verbose', dest='verbose',
                       action='count', default=0,
@@ -66,3 +65,5 @@ log.info('test info message')
 log.warn('test warn message')
 log.error('test error message')
 log.critical('test critical message')
+
+example_package.example_module.do_stuff()
