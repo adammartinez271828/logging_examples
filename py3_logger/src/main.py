@@ -14,6 +14,7 @@ import example_package.example_module
 # We imported example_module before setting logging configuration.
 # This can cause issues, see the module for explanation.
 
+
 def run():
     load_logging_conf('logging.json')
     # All loggers MUST be started AFTER this point, including for imported modules!
@@ -67,6 +68,7 @@ def set_debug_verbosity(verbosity_counter):
         debug_handler.level = logging.DEBUG
     else:
         debug_handler.level = logging.NOTSET
+
 
 if __name__ == '__main__':
     run()
