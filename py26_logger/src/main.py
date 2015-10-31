@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 """Python2.6+ compatible logging setup module to be used as point-of-entry to a
@@ -13,6 +13,33 @@ import example_package.example_module
 # We imported example_module before setting logging configuration.
 # This can cause issues, see the module for explanation.
 
+def run():
+    load_logging_conf('logging.conf')
+    # All loggers MUST be started AFTER this point, including for imported modules!
+    # Start the logger for this module.
+    log = logging.getLogger(__name__)
+
+    opts, args = parse_cli_args()
+
+    set_debug_verbosity(opts.verbose)
+
+    log.debug('test debug message')
+    log.info('test info message')
+    log.warn('test warn message')
+    log.error('test error message')
+    log.critical('test critical message')
+
+    example_package.example_module.do_stuff()
+
+
+def load_logging_conf(log_cfg_filename):
+    """Load logging configuration at '<src_dir>/../logs/<filename>' (os agnostic)."""
+    src_dir = os.path.dirname(os.path.realpath(__file__))
+    cfg_file_path = os.sep.join((src_dir, '..', 'logs', log_cfg_filename))
+
+    logging.config.fileConfig(cfg_file_path)
+
+
 def parse_cli_args():
     """Parse command line args.  Additional options can be added."""
     parser = optparse.OptionParser()
@@ -21,15 +48,6 @@ def parse_cli_args():
                       help='increase debug logging level')
 
     return parser.parse_args()
-
-def load_logging_conf(log_cfg_filename):
-    """Find/load logging configuration at '../logs/<filename>' (os agnostic)."""
-    log_cfg_dir = 'logs'
-    par_cfg_dir = os.pardir
-    rel_cfg_dir = os.sep.join((par_cfg_dir, log_cfg_dir, log_cfg_filename))
-    abs_cfg_dir = os.path.abspath(rel_cfg_dir)
-
-    logging.config.fileConfig(abs_cfg_dir)
 
 def set_debug_verbosity(verbosity_counter):
     """Deactivates the debug handler if verbosity_counter is 0, else sets
@@ -47,20 +65,4 @@ def set_debug_verbosity(verbosity_counter):
         debug_handler.level = logging.NOTSET
 
 if __name__ == '__main__':
-    opts, args = parse_cli_args()
-
-    load_logging_conf('logging.conf')
-    # All loggers MUST be started AFTER this point, including for imported modules!
-
-    set_debug_verbosity(opts.verbose)
-
-# Start the logger for this module.
-log = logging.getLogger(__name__)
-
-log.debug('test debug message')
-log.info('test info message')
-log.warn('test warn message')
-log.error('test error message')
-log.critical('test critical message')
-
-example_package.example_module.do_stuff()
+    run()

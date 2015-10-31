@@ -4,15 +4,45 @@
 """Python3 compatible logging setup module to be used as point-of-entry to a
 program."""
 
-import os
 import argparse
+import json
 import logging
 import logging.config
-import json
+import os
 
 import example_package.example_module
 # We imported example_module before setting logging configuration.
 # This can cause issues, see the module for explanation.
+
+def run():
+    load_logging_conf('logging.json')
+    # All loggers MUST be started AFTER this point, including for imported modules!
+    # Start the logger for this module.
+    log = logging.getLogger(__name__)
+
+    cli_args = parse_cli_args()
+
+    set_debug_verbosity(cli_args.verbose)
+
+    log.debug('test debug message')
+    log.info('test info message')
+    log.warn('test warn message')
+    log.error('test error message')
+    log.critical('test critical message')
+
+    example_package.example_module.do_stuff()
+
+
+def load_logging_conf(log_cfg_filename):
+    """Load logging configuration at '<src_dir>/../logs/<filename>' (os agnostic)."""
+    src_dir = os.path.dirname(os.path.realpath(__file__))
+    cfg_file_path = os.sep.join((src_dir, '..', 'logs', log_cfg_filename))
+
+    # This will disable all previously existing loggers.
+    with open(cfg_file_path) as config_json:
+        logging_config = json.load(config_json)
+    logging.config.dictConfig(logging_config)
+
 
 def parse_cli_args():
     """Parse command line args.  Additional options can be added."""
@@ -23,17 +53,6 @@ def parse_cli_args():
 
     return parser.parse_args()
 
-def load_logging_conf(log_cfg_filename):
-    """Find/load logging configuration at '../logs/<filename>' (os agnostic)."""
-    log_cfg_dir = 'logs'
-    par_cfg_dir = os.pardir
-    rel_cfg_dir = os.sep.join((par_cfg_dir, log_cfg_dir, log_cfg_filename))
-    abs_cfg_dir = os.path.abspath(rel_cfg_dir)
-
-    # This will disable all previously existing loggers.
-    with open(abs_cfg_dir) as config_json:
-        logging_config = json.load(config_json)
-    logging.config.dictConfig(logging_config)
 
 def set_debug_verbosity(verbosity_counter):
     """Deactivates the debug handler if verbosity_counter is 0, else sets
@@ -50,20 +69,4 @@ def set_debug_verbosity(verbosity_counter):
         debug_handler.level = logging.NOTSET
 
 if __name__ == '__main__':
-    cli_args = parse_cli_args()
-
-    load_logging_conf('logging.json')
-    # All loggers MUST be started AFTER this point, including for imported modules!
-
-    set_debug_verbosity(cli_args.verbose)
-
-# Start the logger for this module.
-log = logging.getLogger(__name__)
-
-log.debug('test debug message')
-log.info('test info message')
-log.warn('test warn message')
-log.error('test error message')
-log.critical('test critical message')
-
-example_package.example_module.do_stuff()
+    run()
